@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A playful, offline season classifier that explains its predictions using nearby examples.">
+<title>Season Detective · 季节小侦探</title>
+<style>
+:root{color-scheme:light;--ink:#203a32;--muted:#52675e;--line:#d8e1d6;--green:#286444}*{box-sizing:border-box}body{margin:0;background:#f6f5ed;color:var(--ink);font:16px/1.6 system-ui,-apple-system,'Segoe UI',sans-serif}main{max-width:1080px;margin:auto;padding:32px 22px 50px}header{margin-bottom:28px}.tag{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}h1{font-size:clamp(32px,5vw,56px);line-height:1.15;letter-spacing:-2px;margin:12px 0}h2{font-size:22px;margin:0 0 14px}p{margin:8px 0 16px}.zh{display:block;font-size:.86em;color:var(--muted);letter-spacing:0}.intro{max-width:750px}.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:20px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:0 5px 20px #203a3205}label{font-weight:700;display:block;margin-bottom:10px}select,button,input{font:inherit}select{width:100%;padding:12px;border:1px solid #aab9ae;border-radius:10px;background:white;color:var(--ink);margin-bottom:24px}input[type=range]{width:100%;accent-color:var(--green);min-height:32px}.scale{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}.temperature{font-size:32px;float:right}.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}button{border:1px solid #b7cbbd;background:#edf4ee;color:var(--ink);padding:10px 12px;border-radius:12px;cursor:pointer}button:hover{background:#dbeadb}button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #b36420;outline-offset:4px}.result{background:#eaf3e6}.answer{font-size:40px;font-weight:800;line-height:1.3;margin:10px 0}.badge{display:inline-block;background:white;padding:5px 12px;border-radius:100px;font-size:14px}.reason{border-top:1px solid #c6d8c4;margin-top:20px;padding-top:16px}.votes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.vote{background:#ffffffb8;border-radius:12px;padding:10px;font-size:14px}.track{height:7px;background:#dbe4d6;border-radius:10px;margin-top:6px;overflow:hidden}.fill{height:100%;background:var(--green)}.evidence{margin-top:20px}.neighbors{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.neighbor{border:1px solid var(--line);border-radius:14px;padding:16px}.neighbor strong{display:block}.number{font-size:12px;color:var(--muted)}details{margin-top:20px}summary{cursor:pointer;font-weight:700}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line)}.table-wrap{overflow-x:auto}.note{font-size:14px;color:var(--muted);margin-top:22px}footer{margin-top:24px;font-size:13px;color:var(--muted)}@media(max-width:700px){.grid,.neighbors{grid-template-columns:1fr}.card{padding:20px}main{padding:22px 16px}.answer{font-size:34px}}
+.calendar{background:white;border:1px solid #b7cbbd;border-radius:14px;padding:16px;margin-bottom:20px}.calendar strong{font-size:24px}.comparison{padding:12px;border-radius:10px;background:#fff4d9;margin:12px 0}.comparison.agree{background:#f4f8f1}</style>
+</head>
+<body>
+<main>
+<header><div class="tag">A tiny machine learning playground · 迷你机器学习实验室</div><h1>Season Detective 🌱<span class="zh">季节小侦探</span></h1><p class="intro">Can a month and a temperature tell a seasonal story? Change the clues. See a guess. Follow the evidence.<span class="zh">月份和气温能告诉我们什么季节故事？改变线索，看看预测，再找找证据。</span></p></header>
+<div class="grid">
+<section class="card"><h2>1. Choose your clues<span class="zh">选择你的线索</span></h2>
+<label for="month">Month · 月份</label><select id="month"></select>
+<label for="temperature">Temperature · 气温 <output class="temperature" id="temp-value" for="temperature">20°C</output></label>
+<input id="temperature" type="range" min="-60" max="60" value="20" step="1"><div class="scale"><span>−60°C ❄️</span><span>60°C ☀️</span></div>
+<p style="margin-top:24px">Try a little mystery:<span class="zh">试试这些小谜题：</span></p><div class="presets"><button type="button" data-month="4" data-temp="20">🌷 April / 4月 · 20°C</button><button type="button" data-month="7" data-temp="30">☀️ July / 7月 · 30°C</button><button type="button" data-month="7" data-temp="-5">🥶 July / 7月 · −5°C</button><button type="button" data-month="1" data-temp="30">🤔 January / 1月 · 30°C</button></div>
+</section>
+<section class="card result" aria-live="polite" aria-atomic="true"><h2>2. Season &amp; model prediction<span class="zh">月份季节与模型预测</span></h2><div class="calendar"><div>Season by month · 按月份确定的季节</div><strong id="calendar-season"></strong><div id="calendar-reason" class="zh"></div></div><p><strong>Example-based prediction · 根据例子的模型预测</strong></p><div class="badge">3 nearest examples vote · 最近的3个例子投票</div><div class="answer" id="prediction"></div><p id="verdict"></p><div id="comparison" class="comparison"></div><div class="votes" id="votes"></div><div class="reason"><strong>Why this answer? · 为什么？</strong><p id="reason"></p></div></section>
+</div>
+<section class="card evidence"><h2>3. Follow the evidence<span class="zh">查看支持预测的证据</span></h2><p>These are the three closest examples. Smaller distance means more similar; each example gets one vote.<span class="zh">这是最相似的三个例子。距离越小，越相似；每个例子投一票。</span></p><div class="neighbors" id="neighbors"></div>
+<details><summary>How do we measure “close”? · 如何计算“相似”？</summary><p>Distance = √[(month gap ÷ 3)² + (temperature gap ÷ 15)²]. A 3-month gap counts the same as a 15°C gap. Months wrap around: December and January are only one month apart.<span class="zh">距离 = √[(月份差 ÷ 3)² + (温差 ÷ 15)²]。相差3个月与相差15°C的影响相同。月份循环计算：12月和1月只差1个月。</span></p><p>This is a 3-nearest-neighbor classifier. It remembers labeled examples and votes; it does not train weights. If votes tie, the tied label with the nearest example wins. Exact distance ties follow the table order.<span class="zh">这是“3近邻”分类器：记住有标签的例子，再投票，不需要训练权重。票数相同时，选择拥有最近例子的标签；距离完全相同时按下表顺序决定。</span></p></details>
+<details><summary>Meet all 12 learning examples · 查看全部12个学习例子</summary><p>Invented examples from an imaginary temperate Northern Hemisphere town, not measured weather data.<span class="zh">这些是虚构的北半球温带小镇例子，不是实际气象数据。</span></p><div class="table-wrap"><table><thead><tr><th>Month · 月份</th><th>Temperature · 气温</th><th>Label · 标签</th></tr></thead><tbody id="examples"></tbody></table></div></details>
+</section>
+<p class="note"><strong>A guess from examples, not a calendar rule. · 这是根据例子的猜测，不是日历规则。</strong><br>Real seasons follow calendar or astronomical definitions, and temperatures vary by location. An unusually warm January may confuse this toy model. Vote counts are evidence, not probabilities. Try keeping the month fixed while changing temperature, then keeping temperature fixed while changing month.<span class="zh">实际季节按日历或天文定义划分，气温也因地区而异。异常温暖的1月可能让这个小模型困惑。票数是证据，不是概率。试着固定月份改变气温，再固定气温改变月份。</span></p>
+<noscript><p>Please enable JavaScript to use the classifier. · 请启用JavaScript以使用分类器。</p></noscript>
+<footer>One HTML file. Works offline. No accounts, keys, or downloads. · 一个HTML文件，离线可用，无需账号、密钥或下载依赖。</footer>
+</main>
+<script>
+'use strict';
+const months=['January · 1月','February · 2月','March · 3月','April · 4月','May · 5月','June · 6月','July · 7月','August · 8月','September · 9月','October · 10月','November · 11月','December · 12月'];
+const labels=['Spring','Summer','Fall','Winter'];
+const names={Spring:'🌷 Spring · 春季',Summer:'☀️ Summer · 夏季',Fall:'🍂 Fall · 秋季',Winter:'❄️ Winter · 冬季'};
+const examples=[{month:1,temp:0,label:'Winter'},{month:2,temp:3,label:'Winter'},{month:3,temp:12,label:'Spring'},{month:4,temp:20,label:'Spring'},{month:5,temp:22,label:'Spring'},{month:6,temp:27,label:'Summer'},{month:7,temp:30,label:'Summer'},{month:8,temp:29,label:'Summer'},{month:9,temp:23,label:'Fall'},{month:10,temp:15,label:'Fall'},{month:11,temp:8,label:'Fall'},{month:12,temp:2,label:'Winter'}];
+const $=id=>document.getElementById(id);
+function classify(month,temp){
+ const nearest=examples.map((example,index)=>{const gap=Math.abs(month-example.month);const monthGap=Math.min(gap,12-gap);const tempGap=Math.abs(temp-example.temp);return {...example,index,monthGap,tempGap,distance:Math.hypot(monthGap/3,tempGap/15)};}).sort((a,b)=>a.distance-b.distance||a.index-b.index).slice(0,3);
+ const votes=Object.fromEntries(labels.map(label=>[label,nearest.filter(e=>e.label===label).length]));
+ const maxVotes=Math.max(...Object.values(votes));
+ const tied=labels.filter(label=>votes[label]===maxVotes);
+ const winner=nearest.find(e=>tied.includes(e.label)).label;
+ return {nearest,votes,winner,tie:tied.length>1};
+}
+function render(){
+ const month=Number($('month').value),temp=Number($('temperature').value);
+ const {nearest,votes,winner,tie}=classify(month,temp);
+ const calendarSeason=month>=3&&month<=5?'Spring':month>=6&&month<=8?'Summer':month>=9&&month<=11?'Fall':'Winter';
+ const seasonMonths={Spring:'March–May · 3–5月',Summer:'June–August · 6–8月',Fall:'September–November · 9–11月',Winter:'December–February · 12–2月'};
+ $('calendar-season').textContent=names[calendarSeason];
+ $('calendar-reason').textContent=`Northern Hemisphere meteorological seasons / 北半球气象季节：${seasonMonths[calendarSeason]}`;
+ const mismatch=winner!==calendarSeason;
+ $('comparison').className='comparison'+(mismatch?'':' agree');
+ $('comparison').innerHTML=mismatch
+ ? `The model disagrees with the month. ${months[month-1].split(' · ')[0]} is ${calendarSeason} under this calendar rule, even at ${temp}°C. Temperature changes the model's guess, not the calendar season. Check your input; unusual local weather is also possible.<span class="zh">模型预测与月份不一致。按这里的月份规则，${month}月属于${names[calendarSeason].split(' · ')[1]}，即使气温为${temp}°C也不改变。气温影响模型的猜测，不改变月份季节。可以检查输入，但当地也可能出现异常天气。</span>`
+ : `The model and the calendar agree. This does not verify that the temperature is correct.<span class="zh">模型预测与月份季节一致，但这不能证明输入的气温正确。</span>`;
+ if(temp<0||temp>30) $('comparison').innerHTML+='<p>This temperature is outside our examples’ 0–30°C range. The model has no examples at this temperature, so treat its guess cautiously.<span class="zh">此气温超出学习例子的0–30°C范围。模型没有这个温度的学习例子，预测需要谨慎看待。</span></p>';
+ $('temp-value').value=`${temp}°C`;
+ $('prediction').textContent=names[winner];
+ $('verdict').innerHTML=`${votes[winner]} of 3 nearby examples vote for ${winner}.${tie?' A tied vote: the closest example breaks the tie.':''}<span class="zh">最近的3个例子中有${votes[winner]}个投给${names[winner].split(' · ')[1]}。${tie?'票数相同，按最近的例子决定。':''}</span>`;
+ $('votes').innerHTML=labels.map(label=>`<div class="vote">${names[label]} <strong>${votes[label]}/3</strong><div class="track"><div class="fill" style="width:${votes[label]/3*100}%"></div></div></div>`).join('');
+ const supporting=nearest.find(e=>e.label===winner);
+ $('reason').innerHTML=`The closest example supporting ${winner} is ${months[supporting.month-1].split(' · ')[0]} at ${supporting.temp}°C: ${supporting.monthGap} month(s) and ${supporting.tempGap}°C away. Its distance is ${supporting.distance.toFixed(2)}.<span class="zh">支持此预测的最近例子是${supporting.month}月、${supporting.temp}°C：与输入相差${supporting.monthGap}个月、${supporting.tempGap}°C，距离为${supporting.distance.toFixed(2)}。</span>`;
+ $('neighbors').innerHTML=nearest.map((e,i)=>`<article class="neighbor"><span class="number">NEIGHBOR ${i+1} · 近邻${i+1}</span><strong>${names[e.label]}</strong><div>${months[e.month-1]} · ${e.temp}°C</div><p>Month gap / 月份差: ${e.monthGap}<br>Temp gap / 温差: ${e.tempGap}°C</p><strong>Distance / 距离: ${e.distance.toFixed(2)}</strong><span class="number">1 vote · 1票</span></article>`).join('');
+}
+$('month').innerHTML=months.map((month,i)=>`<option value="${i+1}">${month}</option>`).join('');
+$('month').value='4';
+$('examples').innerHTML=examples.map(e=>`<tr><td>${months[e.month-1]}</td><td>${e.temp}°C</td><td>${names[e.label]}</td></tr>`).join('');
+$('month').addEventListener('change',render);
+$('temperature').addEventListener('input',render);
+document.querySelectorAll('[data-month]').forEach(button=>button.addEventListener('click',()=>{$('month').value=button.dataset.month;$('temperature').value=button.dataset.temp;render();}));
+render();
+</script>
+</body>
+</html>
