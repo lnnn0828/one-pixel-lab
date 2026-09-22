@@ -39,6 +39,16 @@ Unusual temperatures can confuse the model. For example, a freezing July can pro
 
 异常气温可能让模型困惑。例如，7月输入零下气温，模型可能预测成其他季节，但按月份规则7月仍是夏季。这个小型虚构训练集无法覆盖所有地区或异常天气。页面会解释预测与月份季节的分歧，并提示超出学习例子 **−4.5°C～33.2°C** 范围的输入。它无法判断异常气温是输入错误，还是真实的当地天气。
 
+## Bonus: a useful failure case · 加分功能：有用的失败案例
+
+The **Try a tricky case: July + 0°C** section loads a conflicting pair of inputs with one click. July suggests summer by the calendar, while 0°C resembles winter training temperatures. The section reports the actual model result and vote count, then points visitors to the three nearest examples. A second button loads **July + 30°C**, keeping the month fixed so visitors can isolate temperature's influence.
+
+**试试困难案例：7月 + 0°C** 区域可以一键加载相互冲突的输入。按月份规则7月属于夏季，但0°C更像冬季学习例子的气温。区域会显示模型的实际预测与票数，并引导访问者查看三个最近例子。另一个按钮加载 **7月 + 30°C**，固定月份来观察气温的影响。
+
+This teaches that valid individual inputs can provide conflicting evidence, and a nearest-neighbor model can disagree with the calendar label. The result is calculated by the existing classifier, not scripted to say “Winter.”
+
+这个功能说明：单独有效的输入也可能提供冲突证据，近邻模型因此可能偏离月份标签。结果由现有分类器实际计算，不会预先写死为“冬季”。
+
 ## Short development log · 简短开发记录
 
 I used Codex to help build and revise the page. The two development checkpoints were saved after the changes were made.
@@ -50,6 +60,10 @@ I used Codex to help build and revise the page. The two development checkpoints 
 | `bc8357e` | Saved the original One Pixel starter files. 保存原始 One Pixel 入门文件。 |
 | `7d9631d` | Added the bilingual season classifier with 12 examples, expanded temperature to −60–60°C, and separated the calendar season from the model prediction to explain unusual inputs. 加入双语季节分类器和12个例子，将温度范围扩大到−60～60°C，并区分月份季节与模型预测，解释异常输入。 |
 | `ace44bf` | Added 0.1°C precision and a synchronized number input; expanded to 24 visible examples. Checked decimal entry, slider synchronization, presets, and invalid-input feedback in the browser. 加入0.1°C精度和同步数字输入框，扩充到24个可见例子；在浏览器中检查小数输入、滑块同步、预设按钮及无效输入提示。 |
+
+After these checkpoints, I organized this README and added the interactive July + 0°C failure case with a July + 30°C comparison to explain conflicting input evidence.
+
+这些检查点之后，我整理了README，并加入7月0°C困难案例与7月30°C对比，帮助解释输入证据的冲突。
 
 ## Credits · 致谢
 

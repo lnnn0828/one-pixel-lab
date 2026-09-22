@@ -21,6 +21,15 @@
 </section>
 <section class="card result" aria-live="polite" aria-atomic="true"><h2>2. Season &amp; model prediction<span class="zh">月份季节与模型预测</span></h2><div class="calendar"><div>Season by month · 按月份确定的季节</div><strong id="calendar-season"></strong><div id="calendar-reason" class="zh"></div></div><p><strong>Example-based prediction · 根据例子的模型预测</strong></p><div class="badge">3 nearest examples vote · 最近的3个例子投票</div><div class="answer" id="prediction"></div><p id="verdict"></p><div id="comparison" class="comparison"></div><div class="votes" id="votes"></div><div class="reason"><strong>Why this answer? · 为什么？</strong><p id="reason"></p></div></section>
 </div>
+<section class="card evidence" style="background:#fff4d9" aria-labelledby="tricky-title">
+<div class="tag">Bonus · 加分探索</div>
+<h2 id="tricky-title">Try a tricky case: July + 0°C<span class="zh">试试困难案例：7月 + 0°C</span></h2>
+<p>What happens when the month and temperature suggest different seasons? July points to summer by the calendar, but 0°C resembles our winter examples. Predict the result before you click!<span class="zh">当月份和气温暗示不同季节时，会发生什么？按月份规则，7月属于夏季；但0°C更像学习数据中的冬季气温。点击前，先猜一猜！</span></p>
+<div class="presets"><button type="button" data-month="7" data-temp="0">🔎 Try July + 0°C · 加载7月0°C</button><button type="button" data-month="7" data-temp="30">☀️ Compare July + 30°C · 对比7月30°C</button></div>
+<p id="tricky-result" role="status" style="margin-top:16px"></p>
+<p><strong>Follow the three examples below: which seasons get the votes?</strong><span class="zh">查看下方三个最近例子：哪些季节得到了票？</span></p>
+<p>The model combines both clues; it has no rule that makes the month always win. Conflicting clues can cause a failure against the calendar label—even when each input looks valid on its own. Compare 0°C with 30°C while keeping July fixed to see temperature's influence.<span class="zh">模型综合两条线索，并没有“月份永远优先”的规则。即使两个输入单独看都有效，相互冲突的线索仍可能让预测偏离月份标签。固定7月，对比0°C和30°C，观察气温的影响。</span></p>
+</section>
 <section class="card evidence"><h2>3. Follow the evidence<span class="zh">查看支持预测的证据</span></h2><p>These are the three closest examples. Smaller distance means more similar; each example gets one vote.<span class="zh">这是最相似的三个例子。距离越小，越相似；每个例子投一票。</span></p><div class="neighbors" id="neighbors"></div>
 <details><summary>How do we measure “close”? · 如何计算“相似”？</summary><p>Distance = √[(month gap ÷ 3)² + (temperature gap ÷ 15)²]. A 3-month gap counts the same as a 15°C gap. Months wrap around: December and January are only one month apart.<span class="zh">距离 = √[(月份差 ÷ 3)² + (温差 ÷ 15)²]。相差3个月与相差15°C的影响相同。月份循环计算：12月和1月只差1个月。</span></p><p>This is a 3-nearest-neighbor classifier. It remembers labeled examples and votes; it does not train weights. If votes tie, the tied label with the nearest example wins. Exact distance ties follow the table order.<span class="zh">这是“3近邻”分类器：记住有标签的例子，再投票，不需要训练权重。票数相同时，选择拥有最近例子的标签；距离完全相同时按下表顺序决定。</span></p></details>
 <details open><summary>24 learning examples · 24个学习例子</summary><p>6 examples per season; two temperatures for each month. These are the exact examples used in the vote.<span class="zh">每个季节6个例子，每个月有两种气温。投票使用的就是这些例子。</span></p><p>Invented examples from an imaginary temperate Northern Hemisphere town, not measured weather data.<span class="zh">这些是虚构的北半球温带小镇例子，不是实际气象数据。</span></p><div class="table-wrap"><table><thead><tr><th>Month · 月份</th><th>Temperature · 气温</th><th>Label · 标签</th></tr></thead><tbody id="examples"></tbody></table></div></details>
@@ -58,6 +67,9 @@ function classify(month,temp){
 function render(){
  const month=Number($('month').value),temp=Number($('temperature').value);
  const {nearest,votes,winner,tie}=classify(month,temp);
+ $('tricky-result').textContent=month===7&&(temp===0||temp===30)
+  ? `Loaded July + ${temp.toFixed(1)}°C → ${names[winner]}. ${votes[winner]}/3 votes; calendar label: Summer. / 已加载7月${temp.toFixed(1)}°C，模型得到${votes[winner]}/3票；月份标签：夏季。`
+  : 'Choose either case above; both temperature controls and the evidence will update. / 点击上方任一案例，温度滑块、数字输入框和预测证据会一起更新。';
  const calendarSeason=month>=3&&month<=5?'Spring':month>=6&&month<=8?'Summer':month>=9&&month<=11?'Fall':'Winter';
  const seasonMonths={Spring:'March–May · 3–5月',Summer:'June–August · 6–8月',Fall:'September–November · 9–11月',Winter:'December–February · 12–2月'};
  $('calendar-season').textContent=names[calendarSeason];
